@@ -1,6 +1,6 @@
 # HOW TO: Manage Custom Metadata Type & Records using the sfdx-cli
 
-Managing custom metadata & custom metadata records via the Salesforce UI is tiedious as best, especially if the number of records is large.
+Managing custom metadata & custom metadata records via the Salesforce UI is tiedious at best, especially if the number of records is large.
 
 **Alternative** - You can build UI using Flow or LWC but you will need to jump through a number of complex Apex hoops using Metadata.CustomMetadat & Metadata.DeployCallback to get the job done.
 
