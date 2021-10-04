@@ -32,22 +32,84 @@ COMMANDS
 
 ---
 
-## Insert cmdt records using CLI
+## Baiscs of insert CMT using CLI
+
+### Insert cmdt records using CLI
 
 ```bash
 sfdx force:cmdt:record:create -t MyCustomType -n SFDX -l "Salesforce DX" Integration__c=sfdx
 ```
 
-## Insert cmdt records using CSV
+### Insert cmdt records using CSV
 
 ```bash
 sfdx force:cmdt:record:insert -f cmdt.csv -t MyCustomType
 ```
 
-## Create new cmdt type
+### Create new cmdt type
 
 ```bash
 sfdx force:cmdt:create -n Token -l "Crypto Tokens" -p Tokens -d force-app/main/default/objects     
+```
+
+## Testing Custom Metadata without any Org Dependency
+
+Switching to an Apex Property and making it testVisible allows for CustomMetadata to be defined and set in the Test Classes (no org dependency) - like magic!
+
+[Apex Class Properties](https://developer.salesforce.com/docs/atlas.en-us.234.0.apexcode.meta/apexcode/apex_classes_properties.htm)
+
+### Example Apex Property Pattern
+
+```java
+   @testVisible
+    public static Map<String, MyCustomType__mdt> getCustomMetadataService {
+        get {
+            if (getCustomMetadataService == null){
+                getCustomMetadataService = new Map<String, MyCustomType__mdt>();
+                for (MyCustomType__mdt cmt : [SELECT MasterLabel,
+                                                    Integration__c
+                                                    FROM MyCustomType__mdt]) {
+                        System.debug(LoggingLevel.INFO, cmt);
+                                                        getCustomMetadataService.put(cmt.MasterLabel, cmt);
+                }
+
+            }
+            System.debug(LoggingLevel.INFO, 'Generating CMT Map using an Apex Class Property');
+            return getCustomMetadataService;
+        }
+        set;
+    }
+```
+
+### Example Apex Test
+
+
+```java
+ @isTest
+    static void testCustomMetadataService(){
+
+        // Set my TestVisible getCustomMetadataService using an Automatic Property
+        GetCustomMetadataService.getCustomMetadataService = testCMT;
+
+        Test.startTest();
+        MyCustomType__mdt myCMT = GetCustomMetadataService.getCustomMetadataService.get('Test');
+        System.debug(LoggingLevel.INFO, 'My Custom Metadata record for testing:'+myCMT);
+        Test.stopTest();
+        // Can I assert my Test CustomMetadata?
+        System.assertEquals('Test',myCMT.Integration__c,'Something went wrong!');
+
+    }
+
+ 
+    private static Map<String, MyCustomType__mdt> testCMT {
+        get {
+            return new Map<String, MyCustomType__mdt> {
+                       'Test' => ( MyCustomType__mdt ) JSON.deserialize(
+                           '{ "MasterLabel" : "Test", "Integration__c" : "Test" }', MyCustomType__mdt.class )
+            };
+        }
+        private set;
+    }
 ```
 
 ## Read All About It
