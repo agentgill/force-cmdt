@@ -1,4 +1,4 @@
-# HOW TO: Manage Custom Metadata Type & Records using the sfdx-cli
+# Managing & Testing Custom Metadata
 
 Managing custom metadata & custom metadata records via the Salesforce UI is tiedious at best, especially if the number of records is large.
 
